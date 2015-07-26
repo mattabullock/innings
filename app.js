@@ -8,10 +8,15 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
-
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+var routes = require('./routes/index')(io);
+
+http.listen(3000, function(){
+  console.log('listening on *:3000');
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,7 +38,6 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/users', users);
 
 // passport config
 var Account = require('./models/account');
@@ -49,6 +53,13 @@ app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
+});
+
+// Make our db accessible to our router
+app.use(function(req,res,next){
+    console.log(req.db);
+    req.db = db;
+    next();
 });
 
 // error handlers

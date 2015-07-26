@@ -1,0 +1,15 @@
+extends layout
+
+block content
+    h1.
+        Game List
+    ul(id="game_list")
+        each game in gamelist
+            li
+                a(href="#")= game.game_id
+    script(src='/socket.io/socket.io.js')
+    script.
+        var socket = io();
+        socket.on('new game', function(msg) {
+            $("#game_list").append($('<li>').text(msg));
+        });
