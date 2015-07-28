@@ -2,9 +2,9 @@ var exports = function(io) {
 
     var express = require('express');
     var passport = require('passport');
-    var Account = require('../models/account');
-    var Game = require('../models/game');
+    var Account = require('../models/accountSchema');
     var router = express.Router();
+    var util = require('../util');
 
     router.get('/', function (req, res) {
         res.render('index', { user : req.user });
@@ -27,7 +27,8 @@ var exports = function(io) {
     });
 
     router.get('/login', function(req, res) {
-        res.render('login', { user : req.user });
+        var message = req.query.message;
+        res.render('login', { user : req.user, error : message });
     });
 
     router.post('/login', passport.authenticate('local'), function(req, res) {
@@ -39,38 +40,11 @@ var exports = function(io) {
         res.redirect('/');
     });
 
-    router.get('/ping', function(req, res){
-        res.status(200).send("pong!");
-    });
-
     /* GET Userlist page. */
     router.get('/userlist', function(req, res) {
         Account.find({},function(err,accounts) {
             res.render('userlist', {
                 "userlist" : accounts
-            });
-        });
-    });
-
-    router.get('/gamelist', function(req, res) {
-
-        var temp = new Game({
-            game_id : "abcdefg",
-            user : req.user,
-            score : 0
-        });
-
-        temp.save(function (err) {
-            if (err) return handleError(err);
-            console.log("saved!");
-        });
-
-        io.sockets.emit('new game',temp.game_id);
-
-        Game.find({},function(err,games) {
-
-            res.render('gamelist', {
-                "gamelist" : games
             });
         });
     });

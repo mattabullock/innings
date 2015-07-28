@@ -13,6 +13,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var routes = require('./routes/index')(io);
+var updates = require('./routes/updates')(io);
+var games = require('./routes/games')(io);
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
@@ -38,9 +40,11 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+app.use('/', updates);
+app.use('/game/', games)
 
 // passport config
-var Account = require('./models/account');
+var Account = require('./models/accountSchema');
 passport.use(new LocalStrategy(Account.authenticate()));
 passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
