@@ -1,0 +1,20 @@
+nav(class="navbar navbar-default navbar-static-top")
+    div(class="header-content container")
+
+        ul(class="nav navbar-nav")
+            li
+                a(href="/") Home
+            li
+                a(href="/game/") Games
+            li
+                a(href="#") Profile
+        if (!user)
+            p(class="navbar-text navbar-right") You are not logged in. 
+                a(href="/login") Login
+                span /
+                a(href="/register") Register
+        if (user)
+            p(class="navbar-text navbar-right") Signed in as 
+                a(href="#" class="navbar-link")= user.username
+                span  | 
+                a(href="/logout") Logout

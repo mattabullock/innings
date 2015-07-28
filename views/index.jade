@@ -1,12 +1,8 @@
 extends layout
 
 block content
-  if (!user)
-    a(href="/login") Login
-    br
-    a(href="/register") Register
-  if (user)
-    p You are currently logged in as #{user.username}
-    p
-        a(href="/game/") Game List
-    a(href="/logout") Logout
+    div
+        h1 Innings
+    div
+        p
+            a(href="/game/") Game List

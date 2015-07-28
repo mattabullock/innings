@@ -7,7 +7,7 @@ var exports = function(io) {
     var router = express.Router();
     var util = require('../util'); 
 
-    router.get('/', function(req, res) {
+    router.get("/", function(req, res) {
         if(!req.user) {
             res.redirect('/login/?message=denied');
             return;
@@ -16,24 +16,25 @@ var exports = function(io) {
             var data = [];
             games.forEach(function(game) {
                 data.push({
-                    "title" : util.create_link_text(game.game_id),
-                    "link" : game.game_id
+                    title : util.create_link_text(game.game_id),
+                    game : game
                 });
             });
-            res.render('gamelist', {
-                "gamelist" : data
+            res.render("gamelist", {
+                user : req.user,
+                gamelist : data
             });
         });
     });
 
-    router.get('/:id', function(req,res) {
+    router.get("/:id", function(req,res) {
         if(!req.user) {
-            res.redirect('/login/?message=denied');
+            res.redirect("/login/?message=denied");
             return;
         }
         var game_id = req.params.id + "/";
         Game
-        .findOne({'game_id' : game_id})
+        .findOne({"game_id" : game_id})
         .exec(function(err,game) {
             if(err) console.log(err);
             if(!game) {
@@ -44,22 +45,23 @@ var exports = function(io) {
             .populate("user")
             .exec(function(err,scores) {
                 var data = {
-                    "title" : util.create_link_text(game.game_id),
-                    "scores" : scores
+                    user : req.user,
+                    title : util.create_link_text(game.game_id),
+                    scores : scores
                 };
-                res.render('game', data);
+                res.render("game", data);
             });
         });
     });
 
-    router.get('/:id/join', function(req,res) {
+    router.get("/:id/join", function(req,res) {
         if(!req.user) {
-            res.redirect('/login/?message=denied');
+            res.redirect("/login/?message=denied");
             return;
         }
         var game_id = req.params.id + "/";
         Game
-        .findOne({'game_id' : game_id})
+        .findOne({game_id : game_id})
         .exec(function(err,game) {
             if(!game) {
                 res.sendStatus(404);
@@ -73,7 +75,7 @@ var exports = function(io) {
                 for(var i = 0; i < scores.length; i++) {
                     if(scores[i].user._id.equals(req.user._id)) {
                         user_in_room = true;
-                        res.redirect('/game/'+game.game_id);
+                        res.redirect("/game/"+game.game_id);
                         break;
                     }
                 }
@@ -83,7 +85,7 @@ var exports = function(io) {
                         function(err,score) {
                             if(err) console.log(err);
                             io.sockets.emit("player join", {game:game,score:score});
-                            res.redirect('/game/'+game.game_id);
+                            res.redirect("/game/"+game.game_id);
                         }
                     );
                 }                
@@ -91,14 +93,14 @@ var exports = function(io) {
         });
     });
 
-    router.get('/:id/leave', function(req,res) {
+    router.get("/:id/leave", function(req,res) {
         if(!req.user) {
-            res.redirect('/login/?message=denied');
+            res.redirect("/login/?message=denied");
             return;
         }
         var game_id = req.params.id + "/";
         Game
-        .findOne({'game_id' : game_id})
+        .findOne({game_id : game_id})
         .exec(function(err,game) {
             //fill this in!!
         });

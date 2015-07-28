@@ -5,15 +5,16 @@ block content
         Game List
     ul(id="game_list")
         each game in gamelist
-            li(id=game.link)
-                a(href=game.link)= game.title
-    script(src='/socket.io/socket.io.js')
+            if game.game.active
+                li(id=game.game.game_id)
+                    a(href=game.game.game_id)= game.title
+    script(src="/socket.io/socket.io.js")
     script.
         var socket = io();
-        socket.on('new game', function(msg) {
+        socket.on("new game", function(msg) {
             $("#game_list").append($("<li>").attr("id",msg.link).attr("class","game_link")
                 .append($("<a>").attr("href",msg.link).text(msg.title)));
         });
-        socket.on('new day', function(msg) {
+        socket.on("new day", function(msg) {
             $("#game_list").empty();
         });

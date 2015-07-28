@@ -1,16 +1,21 @@
 extends layout
 
 block content
-    h1= title
-    table(class="table",id="high-score")
-        tr
-            th Username
-            th Score
-        each score in scores
-            tr(id=score.user._id)
-                td= score.user.username
-                td= score.score
-    script(src='/socket.io/socket.io.js')
+    div(class="col-sm-12 col-md-12")
+        h1(class="text-center")= title
+    div(class="col-sm-8 col-md-8")
+
+    div(class="col-sm-4 col-md-4")
+        h3(class="text-center") Scoreboard
+        table(class="table table-bordered",id="high-score")
+            tr
+                th Username
+                th Score
+            each score in scores
+                tr(id=score.user._id)
+                    td= score.user.username
+                    td= score.score
+    script(src="/socket.io/socket.io.js")
     script.
         var socket = io();
         socket.on("player join", function(msg) {
@@ -18,3 +23,39 @@ block content
                 $("#"+msg.score.user._id).append($("<td>").text(msg.score.user.username));
                 $("#"+msg.score.user._id).append($("<td>").text(msg.score.score));
             });
+    div(class="col-sm-12 col-md-12")
+        table(class="table table-bordered",id="events")
+            tr(id="innings")
+                th Inning
+                th(class="text-center") 1
+                th(class="text-center") 2
+                th(class="text-center") 3
+                th(class="text-center") 4
+                th(class="text-center") 5
+                th(class="text-center") 6
+                th(class="text-center") 7
+                th(class="text-center") 8
+                th(class="text-center") 9
+            tr(id="events")
+                th Events
+                td(id="event-1")
+                td(id="event-2")
+                td(id="event-3")
+                td(id="event-4")
+                td(id="event-5")
+                td(id="event-6")
+                td(id="event-7")
+                td(id="event-8")
+                td(id="event-9")
+            tr(id="guesses")
+                th Guesses
+                td(id="guess-1")
+                td(id="guess-2")
+                td(id="guess-3")
+                td(id="guess-4")
+                td(id="guess-5")
+                td(id="guess-6")
+                td(id="guess-7")
+                td(id="guess-8")
+                td(id="guess-9")
+                
