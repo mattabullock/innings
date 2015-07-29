@@ -44,12 +44,17 @@ var exports = function(io) {
             Game.Score.find({ game : game })
             .populate("user")
             .exec(function(err,scores) {
-                var data = {
-                    user : req.user,
-                    title : util.create_link_text(game.game_id),
-                    scores : scores
-                };
-                res.render("game", data);
+                Game.Event
+                .find({ game : game })
+                .exec(function(err,events) {
+                    var data = {
+                        user : req.user,
+                        title : util.create_link_text(game.game_id),
+                        scores : scores,
+                        events : events
+                    };
+                    res.render("game", data);
+                });
             });
         });
     });
