@@ -47,11 +47,21 @@ var exports = function(io) {
                 Game.Event
                 .find({ game : game })
                 .exec(function(err,events) {
+                    var arranged_events = {};
+                    for(var i = 0; i < events.length; i++) {
+                        if(typeof arranged_events[events[i].inning] == 'undefined') {
+                            arranged_events[events[i].inning] = [];
+                        }
+                        var short_play = util.shorten_play_name(events[i].event_type);
+                        if(short_play) {
+                            arranged_events[events[i].inning] = arranged_events[events[i].inning].concat(short_play);
+                        }
+                    }
                     var data = {
                         user : req.user,
                         title : util.create_link_text(game.game_id),
                         scores : scores,
-                        events : events
+                        events : arranged_events
                     };
                     res.render("game", data);
                 });

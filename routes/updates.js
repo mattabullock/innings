@@ -87,11 +87,17 @@ var exports = function(io) {
                 });
             });
         });
+        res.status(200).send();
+    });
+
+    router.post("/submit_guess", function(req,res) {
+        console.log(req.body.guess);
+        res.status(200).send();
     });
 
     function make_event(inning,action,game) {
         var event_id = game.game_id.slice(0, -1) + "_" + action.event_num;
-        Game.Event.findOne({ event_id : event_id }, function(event) {
+        Game.Event.findOne({ event_id : event_id }, function(err,event) {
             if(event == null) {
                 Game.Event.create({
                         event_id : event_id,

@@ -4,7 +4,6 @@ block content
     div(class="col-sm-12 col-md-12")
         h1(class="text-center")= title
     div(class="col-sm-8 col-md-8")
-        p= events
     div(class="col-sm-4 col-md-4")
         h3(class="text-center") Scoreboard
         table(class="table table-bordered",id="high-score")
@@ -23,7 +22,7 @@ block content
                 $("#"+msg.score.user._id).append($("<td>").text(msg.score.user.username));
                 $("#"+msg.score.user._id).append($("<td>").text(msg.score.score));
             });
-    div(class="col-sm-12 col-md-12")
+    div(class="col-sm-12 col-md-12 table-responsive")
         table(class="table table-bordered",id="events")
             tr(id="innings")
                 th Inning
@@ -38,15 +37,15 @@ block content
                 th(class="text-center") 9
             tr(id="events")
                 th Events
-                td(id="event-1")
-                td(id="event-2")
-                td(id="event-3")
-                td(id="event-4")
-                td(id="event-5")
-                td(id="event-6")
-                td(id="event-7")
-                td(id="event-8")
-                td(id="event-9")
+                td(id="event-1")= events[1]
+                td(id="event-2")= events[2]
+                td(id="event-3")= events[3]
+                td(id="event-4")= events[4]
+                td(id="event-5")= events[5]
+                td(id="event-6")= events[6]
+                td(id="event-7")= events[7]
+                td(id="event-8")= events[8]
+                td(id="event-9")= events[9]
             tr(id="guesses")
                 th Guesses
                 td(id="guess-1")

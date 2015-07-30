@@ -28,9 +28,35 @@ var create_link_text = function(data) {
     return away + " @ " + home;
 }
 
+var shorten_play_name = function(action) {
+    var plays = {
+        "Single" : "1B",
+        "Double" : "2B",
+        "Triple" : "3B",
+        "Home Run" : "HR",
+        "Groundout" : "GO",
+        "Sac Bunt" : "SAC",
+        "Sac Fly" : "SF",
+        "Pop Out" : "PO",
+        "Forceout" : "FO",
+        "Grounded into DP" : "GIDP",
+        "Strikeout" : "K",
+        "Walk" : "BB",
+        "Wild Pitch" : "WP",
+        "Lineout" : "L",
+        "Wild Pitch" : "WP",
+        "Stolen Base 2B" : "SB",
+        "Stolen Base 3B" : "SB",
+        "Field Error" : "E"
+    }
+
+    return plays[action];
+}
+
 var exports = { 
     "create_link_text" : create_link_text,
-    "get_team_name" : get_team_name
+    "get_team_name" : get_team_name,
+    "shorten_play_name" : shorten_play_name
 };
 
 module.exports = exports;
