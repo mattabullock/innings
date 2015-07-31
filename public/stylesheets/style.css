@@ -6,3 +6,23 @@ body {
 a {
     color: #00B7FF;
 }
+
+.form-actions {
+    margin: 0;
+    background-color: transparent;
+    text-align: center;
+}
+
+#game-body {
+    padding: 20px;
+}
+
+.btn-group {
+    display: table;
+    margin: 0 auto;
+}
+
+#scoreboard {
+    max-height: 400px;
+    overflow-y: auto;
+}

@@ -8,6 +8,8 @@ block content
             if game.game.active
                 li(id=game.game.game_id)
                     a(href=game.game.game_id)= game.title
+
+block scripts
     script(src="/socket.io/socket.io.js")
     script.
         var socket = io();

@@ -3,25 +3,119 @@ extends layout
 block content
     div(class="col-sm-12 col-md-12")
         h1(class="text-center")= title
-    div(class="col-sm-8 col-md-8")
-    div(class="col-sm-4 col-md-4")
+    div(class="col-sm-8 col-md-8",id="game-body")
+        h3(class="text-center") Guesses
+        form(action="",method="post",id="guess-form")
+            div(class="checkbox")
+                table(class="table")
+                    tr
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="1B")
+                                | Single
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="2B")
+                                | Double
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="3B")
+                                | Triple
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="HR")
+                                | Home Run
+                    tr
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="BB")
+                                | Walk
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="SB")
+                                | Stolen Base
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="SAC")
+                                | Sac Bunt
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="SF")
+                                | Sac Fly
+                    tr
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="GO")
+                                | Groundout
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="PO")
+                                | Pop Out
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="L")
+                                | Lineout
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="FO")
+                                | Forceout
+                    tr
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="WP")
+                                | Wild Pitch
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="E")
+                                | Error
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="GIDP")
+                                | Grounded into DP
+                        td
+                            label
+                                input(type="checkbox", class="guess", name="K")
+                                | Strikout
+            input(type="hidden",name="_csrf",value=csrf)
+            div(class="form-actions",id="guess-submit")
+                if in_room
+                    button(type="submit").btn.btn-default Submit
+                else
+                    button(type="submit",class="disabled").btn.btn-default Submit
+    div(class="col-sm-4 col-md-4",id="game-body")
         h3(class="text-center") Scoreboard
-        table(class="table table-bordered",id="high-score")
-            tr
-                th Username
-                th Score
-            each score in scores
-                tr(id=score.user._id)
-                    td= score.user.username
-                    td= score.score
-    script(src="/socket.io/socket.io.js")
-    script.
-        var socket = io();
-        socket.on("player join", function(msg) {
-                var tr = $("#high-score").append($("<tr>").attr("id",msg.score.user._id));
-                $("#"+msg.score.user._id).append($("<td>").text(msg.score.user.username));
-                $("#"+msg.score.user._id).append($("<td>").text(msg.score.score));
-            });
+        div(id="scoreboard")
+            table(class="table table-bordered",id="high-score")
+                tr
+                    th Username
+                    th Score
+                each score in scores
+                    tr(id=score.user._id)
+                        td= score.user.username
+                        td= score.score
+        if !in_room
+            div(class="btn-group",id="join-group")
+                form(action="",method="post",id="join-form")
+                    input(type="hidden",name="_csrf",value=csrf)
+                    div(class="form-actions")
+                        button(type="submit").btn.btn-default Join
+            div(class="btn-group",id="leave-group",style="display:none;")
+                form(action="",method="post",id="leave-form")
+                    input(type="hidden",name="_csrf",value=csrf)
+                    div(class="form-actions")
+                        button(type="submit").btn.btn-default Leave
+        else
+            div(class="btn-group",id="join-group",style="display:none;")
+                form(action="",method="post",id="join-form")
+                    input(type="hidden",name="_csrf",value=csrf)
+                    div(class="form-actions")
+                        button(type="submit").btn.btn-default Join
+            div(class="btn-group",id="leave-group")
+                form(action="",method="post",id="leave-form")
+                    input(type="hidden",name="_csrf",value=csrf)
+                    div(class="form-actions")
+                        button(type="submit").btn.btn-default Leave
+
     div(class="col-sm-12 col-md-12 table-responsive")
         table(class="table table-bordered",id="events")
             tr(id="innings")
@@ -57,4 +151,95 @@ block content
                 td(id="guess-7")
                 td(id="guess-8")
                 td(id="guess-9")
+
+block scripts
+    script(src="/socket.io/socket.io.js")        
+    script.
+        $(document).ready(function () {
+            var socket = io();
+            socket.on("player join", function(msg) {
+                var tr = $("#high-score").append($("<tr>").attr("id",msg.score.user._id));
+                $("#"+msg.score.user._id).append($("<td>").text(msg.score.user.username));
+                $("#"+msg.score.user._id).append($("<td>").text(msg.score.score));
+            });
+            socket.on("player leave", function(msg) {
+                $("#"+msg.user._id).remove();
+            });
+            socket.on("new event", function(msg) {
+                //fill this in!!!
+            });
+            $("#join-form").submit(function(e) {
+                var path = window.location.pathname;
+                if(path.slice(-1) !== "/") {
+                    path = path + "/join";
+                } else {
+                    path = path + "join";
+                }
+                var data = $("#guess-form").serialize();
+                $.ajax({
+                    url: path,
+                    type: "POST",
+                    data: data,
+                    success: function (data) {
+                        $("#join-group").hide();
+                        $("#leave-group").show();
+                        $("#guess-submit > button").removeClass("disabled");
+                    },
+                    error: function (jXHR, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+                return false;
+            });
+            $("#leave-form").submit(function(e) {
+                var path = window.location.pathname;
+                if(path.slice(-1) !== "/") {
+                    path = path + "/leave";
+                } else {
+                    path = path + "leave";
+                }
+                var data = $("#guess-form").serialize();
+                $.ajax({
+                    url: path,
+                    type: "POST",
+                    data: data,
+                    success: function (data) {
+                        $("#join-group").show();
+                        $("#leave-group").hide();
+                        $("#guess-submit > button").addClass("disabled");
+                    },
+                    error: function (jXHR, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+                return false;
+            });
+
+            $("#guess-form").submit(function(e) {
+                var data = $("#guess-form").serialize();
+                $.ajax({
+                    url: "/submit_guess",
+                    type: "POST",
+                    data: data,
+                    success: function (data) {
+                        console.log("submitted guess!");
+                    },
+                    error: function (jXHR, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+                return false;
+            });
+            $(".guess").each(function(e) {
+                $(this).change(function() {
+                    if($(this).is(":checked")) {
+                        if($(".guess:checked").length > 3) {
+                            $(this).attr('checked', false);
+                        }
+                    }
+                });
+            });
+        });
+
+
                 

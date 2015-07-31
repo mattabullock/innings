@@ -48,8 +48,8 @@ var exports = function(io) {
     router.get("/update_games", function(req, res) {
         Game.find({active:true},function(err, games) {
             games.forEach(function(game) {
-                // var url = "http://gd2.mlb.com/components/game/mlb" + game.date_string + game.game_id + "game_events.json";
-                var url = "http://gd2.mlb.com/components/game/mlb/year_2015/month_07/day_24/gid_2015_07_24_oakmlb_sfnmlb_1/game_events.json"; //for test purposes only
+                var url = "http://gd2.mlb.com/components/game/mlb/" + game.date_string + game.game_id + "game_events.json";
+                // var url = "http://gd2.mlb.com/components/game/mlb/year_2015/month_07/day_24/gid_2015_07_24_oakmlb_sfnmlb_1/game_events.json"; //for test purposes only
                 request(url, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
                         var innings = JSON.parse(body).data.game.inning;
@@ -91,7 +91,9 @@ var exports = function(io) {
     });
 
     router.post("/submit_guess", function(req,res) {
-        console.log(req.body.guess);
+        if(req.user) {
+            console.log("asdf");
+        }
         res.status(200).send();
     });
 

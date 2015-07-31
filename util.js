@@ -39,12 +39,11 @@ var shorten_play_name = function(action) {
         "Sac Fly" : "SF",
         "Pop Out" : "PO",
         "Forceout" : "FO",
-        "Grounded into DP" : "GIDP",
+        "Grounded Into DP" : "GIDP",
         "Strikeout" : "K",
         "Walk" : "BB",
         "Wild Pitch" : "WP",
         "Lineout" : "L",
-        "Wild Pitch" : "WP",
         "Stolen Base 2B" : "SB",
         "Stolen Base 3B" : "SB",
         "Field Error" : "E"

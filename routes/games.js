@@ -9,7 +9,7 @@ var exports = function(io) {
 
     router.get("/", function(req, res) {
         if(!req.user) {
-            res.redirect('/login/?message=denied');
+            res.redirect("/login/?message=denied&redirect="+req.originalUrl);
             return;
         }
         Game.find({},function(err,games) {
@@ -27,9 +27,9 @@ var exports = function(io) {
         });
     });
 
-    router.get("/:id", function(req,res) {
+    router.get("/:id/", function(req,res) {
         if(!req.user) {
-            res.redirect("/login/?message=denied");
+            res.redirect("/login/?message=denied&redirect="+req.originalUrl);
             return;
         }
         var game_id = req.params.id + "/";
@@ -44,6 +44,13 @@ var exports = function(io) {
             Game.Score.find({ game : game })
             .populate("user")
             .exec(function(err,scores) {
+                var in_room = false;
+                for(var i = 0; i < scores.length; i++) {
+                    if(scores[i].user.equals(req.user)) {
+                        in_room = true;
+                        break;
+                    }
+                }
                 Game.Event
                 .find({ game : game })
                 .exec(function(err,events) {
@@ -57,11 +64,15 @@ var exports = function(io) {
                             arranged_events[events[i].inning] = arranged_events[events[i].inning].concat(short_play);
                         }
                     }
+
                     var data = {
                         user : req.user,
                         title : util.create_link_text(game.game_id),
+                        game : game,
                         scores : scores,
-                        events : arranged_events
+                        events : arranged_events,
+                        csrf : req.csrfToken(),
+                        in_room : in_room
                     };
                     res.render("game", data);
                 });
@@ -69,9 +80,9 @@ var exports = function(io) {
         });
     });
 
-    router.get("/:id/join", function(req,res) {
+    router.post("/:id/join/", function(req,res) {
         if(!req.user) {
-            res.redirect("/login/?message=denied");
+            res.redirect("/login/?message=denied&redirect="+req.originalUrl);
             return;
         }
         var game_id = req.params.id + "/";
@@ -88,9 +99,9 @@ var exports = function(io) {
             .exec(function(err,scores) {
                 var user_in_room = false;
                 for(var i = 0; i < scores.length; i++) {
-                    if(scores[i].user._id.equals(req.user._id)) {
+                    if(scores[i].user.equals(req.user)) {
                         user_in_room = true;
-                        res.redirect("/game/"+game.game_id);
+                        res.sendStatus(200);
                         break;
                     }
                 }
@@ -100,7 +111,7 @@ var exports = function(io) {
                         function(err,score) {
                             if(err) console.log(err);
                             io.sockets.emit("player join", {game:game,score:score});
-                            res.redirect("/game/"+game.game_id);
+                            res.sendStatus(200);
                         }
                     );
                 }                
@@ -108,16 +119,21 @@ var exports = function(io) {
         });
     });
 
-    router.get("/:id/leave", function(req,res) {
+    router.post("/:id/leave/", function(req,res) {
         if(!req.user) {
-            res.redirect("/login/?message=denied");
+            res.redirect("/login/?message=denied&redirect="+req.originalUrl);
             return;
         }
         var game_id = req.params.id + "/";
         Game
         .findOne({game_id : game_id})
         .exec(function(err,game) {
-            //fill this in!!
+            Game.Score
+            .remove({ game : game, user : req.user })
+            .exec(function(err) {
+                io.sockets.emit("player leave", {game:game,user:req.user});
+                res.sendStatus(200);
+            });
         });
     });
 

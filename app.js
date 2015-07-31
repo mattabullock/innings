@@ -7,6 +7,7 @@ var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
 var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy;
+var crypto = require("crypto");
 
 var app = express();
 var http = require("http").Server(app);
@@ -31,13 +32,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(require("express-session")({
-    secret: "keyboard cat",
+    secret: crypto.randomBytes(20).toString('hex'),
     resave: false,
     saveUninitialized: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(require('csurf')());
 
 app.use("/", routes);
 app.use("/", updates);
@@ -61,9 +63,9 @@ app.use(function(req, res, next) {
 
 // Make our db accessible to our router
 app.use(function(req,res,next){
-    console.log(req.db);
-    req.db = db;
-    next();
+  console.log(req.db);
+  req.db = db;
+  next();
 });
 
 // error handlers

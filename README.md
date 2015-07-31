@@ -6,7 +6,7 @@ TODO:
 * Update events (using socket.io) when /update_games is called
 * Fill in events on bottom linescore
 * Complete /submit_guess
-    * ADD CSRF TOKENS
-* Add guess form on page
+    * Make it so you are guessing for the current inning
+    * Add current inning to game schema or calculate each time
 * Make everything live update (cron and socket.io)
 * Test test test
