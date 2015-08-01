@@ -64,17 +64,25 @@ var exports = function(io) {
                             arranged_events[events[i].inning] = arranged_events[events[i].inning].concat(short_play);
                         }
                     }
-
-                    var data = {
-                        user : req.user,
-                        title : util.create_link_text(game.game_id),
-                        game : game,
-                        scores : scores,
-                        events : arranged_events,
-                        csrf : req.csrfToken(),
-                        in_room : in_room
-                    };
-                    res.render("game", data);
+                    Game.Guess
+                    .find({game : game, user : req.user})
+                    .exec(function(err,guesses) {
+                        var arranged_guesses = {};
+                        for(var i = 0; i < guesses.length; i++) {
+                            arranged_guesses[guesses[i].inning] = guesses[i].guesses;
+                        }
+                        var data = {
+                            user : req.user,
+                            title : util.create_link_text(game.game_id),
+                            game : game,
+                            scores : scores,
+                            events : arranged_events,
+                            csrf : req.csrfToken(),
+                            in_room : in_room,
+                            guesses : arranged_guesses
+                        };
+                        res.render("game", data);
+                    });
                 });
             });
         });
@@ -136,6 +144,75 @@ var exports = function(io) {
             });
         });
     });
+
+    router.post("/:id/submit_guess", function(req,res) {
+        var guesses = Object.keys(req.body);
+        var index = guesses.indexOf("_csrf");
+        if (index > -1) {
+            guesses.splice(index, 1);
+        }
+        if(req.user && validate_guesses(guesses)) {
+            Game
+            .findOne({game_id : req.params.id + "/"})
+            .exec(function(err,game) {
+                if(game !== null) {
+                    Game.Score
+                    .findOne({
+                        game : game,
+                        user : req.user
+                    })
+                    .exec(function(err,score) {
+                        if(score !== null) {
+                            Game.Guess
+                            .findOne({ game : game, user : req.user, inning : game.current_inning })
+                            .exec(function(err,guess) {
+                                if(guess === null) {
+                                    Game.Guess
+                                    .create({ 
+                                        guesses : guesses, 
+                                        inning : game.current_inning,
+                                        game : game,
+                                        user : req.user
+                                    }, function(err,new_guess) {
+                                        if(err) console.log(err);
+                                        io.sockets.emit("new guess", { guess : new_guess });
+                                        res.status(200).send();
+                                    });
+                                } else {
+                                    guess.update({guesses: guesses}, function(err,raw) {
+                                        io.sockets.emit("update guess", { guess : guess });
+                                        res.status(200).send();
+                                    });
+                                }
+                            });
+                        } else {
+                            res.status(404).send();
+                        }
+                    });
+                } else {
+                    res.status(404).send();
+                }
+            });
+        } else {
+            res.status(403).send();
+        }
+    });
+
+    function validate_guesses(guesses) {
+        var plays = [
+            "1B","2B","3B","HR",
+            "GO","SAC","SF","PO",
+            "FO","GIDP","K","BB",
+            "WP","L","SB","E"
+        ];
+
+        for(var i = 0; i < guesses.length; i++) {
+            if(plays.indexOf(guesses[i]) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     return router;
 

@@ -5,8 +5,6 @@ TODO:
 * When you enter a game room, enter a socket.io room, only emit changes to socket.io room
 * Update events (using socket.io) when /update_games is called
 * Fill in events on bottom linescore
-* Complete /submit_guess
-    * Make it so you are guessing for the current inning
-    * Add current inning to game schema or calculate each time
+* Bug: Have to submit twice to update guess... it's always one event behind?
 * Make everything live update (cron and socket.io)
 * Test test test

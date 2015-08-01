@@ -5,7 +5,8 @@ var Schema = mongoose.Schema;
 var Game = new Schema({
     game_id : String,
     active : { type : Boolean, default : true },
-    date_string : String
+    date_string : String,
+    current_inning : { type : Number, default : 0}
 });
 
 var Score = new Schema({

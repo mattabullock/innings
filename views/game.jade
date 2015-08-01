@@ -142,15 +142,15 @@ block content
                 td(id="event-9")= events[9]
             tr(id="guesses")
                 th Guesses
-                td(id="guess-1")
-                td(id="guess-2")
-                td(id="guess-3")
-                td(id="guess-4")
-                td(id="guess-5")
-                td(id="guess-6")
-                td(id="guess-7")
-                td(id="guess-8")
-                td(id="guess-9")
+                td(id="guess-1")= guesses[0]
+                td(id="guess-2")= guesses[1]
+                td(id="guess-3")= guesses[2]
+                td(id="guess-4")= guesses[3]
+                td(id="guess-5")= guesses[4]
+                td(id="guess-6")= guesses[5]
+                td(id="guess-7")= guesses[6]
+                td(id="guess-8")= guesses[7]
+                td(id="guess-9")= guesses[8]
 
 block scripts
     script(src="/socket.io/socket.io.js")        
@@ -167,6 +167,13 @@ block scripts
             });
             socket.on("new event", function(msg) {
                 //fill this in!!!
+            });
+            socket.on("new guess", function(msg) {
+                //fill this in!!!
+            });
+            socket.on("update guess", function(msg) {
+                var inning = Number(msg.guess.inning) + 1;
+                $("#guess-"+inning).text(msg.guess.guesses.toString());
             });
             $("#join-form").submit(function(e) {
                 var path = window.location.pathname;
@@ -192,33 +199,41 @@ block scripts
                 return false;
             });
             $("#leave-form").submit(function(e) {
-                var path = window.location.pathname;
-                if(path.slice(-1) !== "/") {
-                    path = path + "/leave";
-                } else {
-                    path = path + "leave";
-                }
-                var data = $("#guess-form").serialize();
-                $.ajax({
-                    url: path,
-                    type: "POST",
-                    data: data,
-                    success: function (data) {
-                        $("#join-group").show();
-                        $("#leave-group").hide();
-                        $("#guess-submit > button").addClass("disabled");
-                    },
-                    error: function (jXHR, textStatus, errorThrown) {
-                        alert(errorThrown);
+                if(confirm("Are you sure you want to leave this game?")) {
+                    var path = window.location.pathname;
+                    if(path.slice(-1) !== "/") {
+                        path = path + "/leave";
+                    } else {
+                        path = path + "leave";
                     }
-                });
+                    var data = $("#guess-form").serialize();
+                    $.ajax({
+                        url: path,
+                        type: "POST",
+                        data: data,
+                        success: function (data) {
+                            $("#join-group").show();
+                            $("#leave-group").hide();
+                            $("#guess-submit > button").addClass("disabled");
+                        },
+                        error: function (jXHR, textStatus, errorThrown) {
+                            alert(errorThrown);
+                        }
+                    });
+                }
                 return false;
             });
 
             $("#guess-form").submit(function(e) {
                 var data = $("#guess-form").serialize();
+                var path = window.location.pathname;
+                if(path.slice(-1) !== "/") {
+                    path = path + "/submit_guess";
+                } else {
+                    path = path + "submit_guess";
+                }
                 $.ajax({
-                    url: "/submit_guess",
+                    url: path,
                     type: "POST",
                     data: data,
                     success: function (data) {

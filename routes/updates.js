@@ -49,7 +49,6 @@ var exports = function(io) {
         Game.find({active:true},function(err, games) {
             games.forEach(function(game) {
                 var url = "http://gd2.mlb.com/components/game/mlb/" + game.date_string + game.game_id + "game_events.json";
-                // var url = "http://gd2.mlb.com/components/game/mlb/year_2015/month_07/day_24/gid_2015_07_24_oakmlb_sfnmlb_1/game_events.json"; //for test purposes only
                 request(url, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
                         var innings = JSON.parse(body).data.game.inning;
@@ -90,17 +89,13 @@ var exports = function(io) {
         res.status(200).send();
     });
 
-    router.post("/submit_guess", function(req,res) {
-        if(req.user) {
-            console.log("asdf");
-        }
-        res.status(200).send();
-    });
-
     function make_event(inning,action,game) {
         var event_id = game.game_id.slice(0, -1) + "_" + action.event_num;
         Game.Event.findOne({ event_id : event_id }, function(err,event) {
             if(event == null) {
+                game.update({ current_inning : inning }, function(err, raw) {
+                    if(err) console.log(err);
+                });
                 Game.Event.create({
                         event_id : event_id,
                         game : game,
