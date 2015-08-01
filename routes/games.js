@@ -179,8 +179,9 @@ var exports = function(io) {
                                         res.status(200).send();
                                     });
                                 } else {
-                                    guess.update({guesses: guesses}, function(err,raw) {
-                                        io.sockets.emit("update guess", { guess : guess });
+                                    guess.guesses = guesses;
+                                    guess.save(function(err,new_guesses) {
+                                        io.sockets.emit("update guess", { guess : new_guesses });
                                         res.status(200).send();
                                     });
                                 }
@@ -199,6 +200,9 @@ var exports = function(io) {
     });
 
     function validate_guesses(guesses) {
+        if(guesses.length > 3) {
+            return false;
+        }
         var plays = [
             "1B","2B","3B","HR",
             "GO","SAC","SF","PO",

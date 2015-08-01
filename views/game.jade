@@ -172,6 +172,7 @@ block scripts
                 //fill this in!!!
             });
             socket.on("update guess", function(msg) {
+                console.log("received guess");
                 var inning = Number(msg.guess.inning) + 1;
                 $("#guess-"+inning).text(msg.guess.guesses.toString());
             });
