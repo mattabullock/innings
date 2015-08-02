@@ -6,13 +6,13 @@ var Game = new Schema({
     game_id : String,
     active : { type : Boolean, default : true },
     date_string : String,
-    current_inning : { type : Number, default : 0}
+    current_inning : { type : Number, default : 0 }
 });
 
 var Score = new Schema({
     user : { type: Schema.Types.ObjectId, ref: "Account" },
     game : { type: Schema.Types.ObjectId, ref: "Game" },
-    score : Number
+    score : { type : Number, default : 0 }
 });
 
 var Event = new Schema({

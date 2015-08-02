@@ -166,15 +166,11 @@ block scripts
                 $("#"+msg.user._id).remove();
             });
             socket.on("new event", function(msg) {
-                //fill this in!!!
+                var inning = Number(msg.inning);
+                $("#event-"+inning).text(msg.event.toString());
             });
-            socket.on("new guess", function(msg) {
-                //fill this in!!!
-            });
-            socket.on("update guess", function(msg) {
-                console.log("received guess");
-                var inning = Number(msg.guess.inning) + 1;
-                $("#guess-"+inning).text(msg.guess.guesses.toString());
+            socket.on("score update", function(msg) {
+                console.log(msg);
             });
             $("#join-form").submit(function(e) {
                 var path = window.location.pathname;
@@ -238,7 +234,8 @@ block scripts
                     type: "POST",
                     data: data,
                     success: function (data) {
-                        console.log("submitted guess!");
+                        var inning = Number(data.inning) + 1;
+                        $("#guess-"+inning).text(data.guesses.toString());
                     },
                     error: function (jXHR, textStatus, errorThrown) {
                         alert(errorThrown);

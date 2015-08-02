@@ -173,16 +173,15 @@ var exports = function(io) {
                                         inning : game.current_inning,
                                         game : game,
                                         user : req.user
-                                    }, function(err,new_guess) {
+                                    }, function(err,new_guesses) {
                                         if(err) console.log(err);
-                                        io.sockets.emit("new guess", { guess : new_guess });
-                                        res.status(200).send();
+                                        res.json(new_guesses);
                                     });
                                 } else {
                                     guess.guesses = guesses;
                                     guess.save(function(err,new_guesses) {
-                                        io.sockets.emit("update guess", { guess : new_guesses });
-                                        res.status(200).send();
+                                        if(err) console.log(err);
+                                        res.json(new_guesses);
                                     });
                                 }
                             });

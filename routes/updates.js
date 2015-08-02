@@ -93,9 +93,12 @@ var exports = function(io) {
         var event_id = game.game_id.slice(0, -1) + "_" + action.event_num;
         Game.Event.findOne({ event_id : event_id }, function(err,event) {
             if(event == null) {
-                game.update({ current_inning : inning }, function(err, raw) {
-                    if(err) console.log(err);
-                });
+                if(inning > game.current_inning) {
+                    game.update({ current_inning : inning }, function(err, raw) {
+                        if(err) console.log(err);
+                        io.sockets.emit("new inning", { inning : inning });
+                    });
+                }
                 Game.Event.create({
                         event_id : event_id,
                         game : game,
@@ -103,12 +106,68 @@ var exports = function(io) {
                         event_type : action.event
                     },
                     function(err, event) {
-                        io.sockets.emit("new event", {event : event});
+                        Game.Event
+                        .find({ game : event.game, inning : event.inning })
+                        .exec(function(err,update_events) {
+                            var arranged_events = [];
+                            for(var i = 0; i < update_events.length; i++) {
+                                var short_play = util.shorten_play_name(update_events[i].event_type);
+                                if(short_play) {
+                                    arranged_events.push(short_play);
+                                }
+                            }
+                            io.sockets.emit("new event", { inning : event.inning, event : arranged_events });
+                            Game.Guess
+                            .find({ game : game, inning : inning-1 })
+                            .exec(function(err, guesses) {
+                                for(var i = 0; i < guesses.length; i++) {
+                                    var inning_score = get_score(event,guesses[i].guesses);
+                                    Game.Score
+                                    .findOne({ game : game, user : guesses[i].user })
+                                    .populate("user")
+                                    .exec(function(err, score) {
+                                        score.score += inning_score;
+                                        score.save(function(err, new_score) {
+                                            io.sockets.emit("score update", { score : new_score, user : score.user });
+                                        });
+                                    });
+                                }
+                            });
+                        });
                     }
                 );
             }
         });
         
+    }
+
+    function get_score(event,guesses) {
+        var plays = {
+            "1B" : 3,
+            "2B" : 6,
+            "3B" : 9,
+            "HR" : 12,
+            "GO" : 1,
+            "SAC" : 8,
+            "SF" : 8,
+            "PO" : 2,
+            "FO" : 3,
+            "GIDP" : 5,
+            "K" : 2,
+            "BB" : 4,
+            "WP" : 8,
+            "L" : 2,
+            "SB" : 9,
+            "E" : 12
+        };
+        var score = 0;
+        var short_play = util.shorten_play_name(event.event_type);
+        var index = guesses.indexOf(short_play);
+        if(index > -1) {
+            score = plays[short_play];
+            guesses.splice(index, 1);
+        }
+        return score;
     }
 
     return router;
