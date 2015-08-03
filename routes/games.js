@@ -118,7 +118,7 @@ var exports = function(io) {
                         {user : req.user, game : game, score : 0}, 
                         function(err,score) {
                             if(err) console.log(err);
-                            io.sockets.emit("player join", {game:game,score:score});
+                            io.sockets.to(game.game_id).emit("player join", {game:game,score:score});
                             res.sendStatus(200);
                         }
                     );
@@ -139,7 +139,7 @@ var exports = function(io) {
             Game.Score
             .remove({ game : game, user : req.user })
             .exec(function(err) {
-                io.sockets.emit("player leave", {game:game,user:req.user});
+                io.sockets.to(game.game_id).emit("player leave", {game:game,user:req.user});
                 res.sendStatus(200);
             });
         });

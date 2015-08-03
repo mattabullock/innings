@@ -116,7 +116,7 @@ var exports = function(io) {
                                     arranged_events.push(short_play);
                                 }
                             }
-                            io.sockets.emit("new event", { inning : event.inning, event : arranged_events });
+                            io.sockets.to(game.game_id).emit("new event", { inning : event.inning, event : arranged_events });
                             Game.Guess
                             .find({ game : game, inning : inning-1 })
                             .exec(function(err, guesses) {
@@ -128,7 +128,7 @@ var exports = function(io) {
                                     .exec(function(err, score) {
                                         score.score += inning_score;
                                         score.save(function(err, new_score) {
-                                            io.sockets.emit("score update", { score : new_score, user : score.user });
+                                            io.sockets.to(game.game_id).emit("score update", { score : new_score, user : score.user });
                                         });
                                     });
                                 }
