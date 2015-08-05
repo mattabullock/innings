@@ -33,6 +33,16 @@ var exports = function(io) {
             return;
         }
         var game_id = req.params.id + "/";
+        io.sockets.on("connection", function (socket) {
+
+            socket.on("subscribe", function(data) { 
+                socket.join(data.room);
+                console.log(io.nsps["/"].adapter);
+            });
+
+            socket.on("unsubscribe", function(data) { socket.leave(data.room); });
+
+        });        
         Game
         .findOne({"game_id" : game_id})
         .exec(function(err,game) {

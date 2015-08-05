@@ -157,6 +157,8 @@ block scripts
     script.
         $(document).ready(function () {
             var socket = io();
+
+            socket.emit("subscribe", { room: "#{game.game_id}" });
             socket.on("player join", function(msg) {
                 var tr = $("#high-score").append($("<tr>").attr("id",msg.score.user._id));
                 $("#"+msg.score.user._id).append($("<td>").text(msg.score.user.username));
